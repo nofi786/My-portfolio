@@ -821,6 +821,20 @@
       .skills-grid { grid-template-columns: repeat(2, 1fr); }
       .hero-stats { gap: 16px; }
       .stat { padding: 16px 20px; }
+      /* Heading sizes thori choti kar den mobile ke liye */
+  h1 { font-size: 2.2rem !important; line-height: 1.2; }
+  h2 { font-size: 1.8rem !important; }
+
+  /* Buttons ko mobile par line ke bajaye upar niche karne ke liye */
+  .hero-btns { 
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  /* Section ki padding thori zyada kar den taaki content chipke nahi */
+  section { padding: 50px 20px !important; }
     }
     @media (max-width: 480px) {
       .skills-grid { grid-template-columns: 1fr; }
