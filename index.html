@@ -1646,22 +1646,42 @@ script.id="ENRyFIjJmWoHDOtLC-HzL";script.domain="www.chatbase.co";document.body.
 if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
 </script>
 
-<script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js" async defer></script>
 <script>
-  window.addEventListener('load', function() {
-    if (window.vapiSDK) {
-      window.vapiSDK.run({
-        apiKey: "248843f1-79b5-4d22-8f08-060bed4f567b",
-        assistant: "3627175b-19bd-431c-b4ab-b6d2c718bc7e"
-      });
-    }
+  let vapiInstance = null;
+  let vapiCallActive = false;
+  const VAPI_ASSISTANT_ID = "3627175b-19bd-431c-b4ab-b6d2c718bc7e";
+
+  window.addEventListener('load', function () {
+    if (!window.vapiSDK) return;
+
+    vapiInstance = window.vapiSDK.run({
+      apiKey: "248843f1-79b5-4d22-8f08-060bed4f567b",
+      assistant: VAPI_ASSISTANT_ID
+    });
+
+    vapiInstance.on('call-start', function () {
+      vapiCallActive = true;
+      document.getElementById('vapi-btn-text').textContent = "End Call";
+      document.getElementById('vapi-call-btn').classList.add('active-call');
+    });
+
+    vapiInstance.on('call-end', function () {
+      vapiCallActive = false;
+      document.getElementById('vapi-btn-text').textContent = "Call AI Agent";
+      document.getElementById('vapi-call-btn').classList.remove('active-call');
+    });
   });
 
   function toggleVapiCall() {
-    if (window.vapiSDK && window.vapiSDK.instances && window.vapiSDK.instances[0]) {
-      window.vapiSDK.instances[0].toggle();
+    if (!vapiInstance) {
+      alert("Assistant load ho raha hai, thodi dair baad try karein.");
+      return;
+    }
+    if (vapiCallActive) {
+      vapiInstance.stop();
     } else {
-      alert("Please push code to Vercel/Netlify or open via Live Server for mic permissions.");
+      vapiInstance.start(VAPI_ASSISTANT_ID);
     }
   }
 </script>
