@@ -905,6 +905,43 @@
   display: none !important;
 }
 
+/* Header Mobile Alignment Fix */
+@media screen and (max-width: 768px) {
+  nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 12px 16px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Hide Desktop Nav Links on Mobile */
+  .nav-links {
+    display: none !important;
+  }
+
+  /* Right Side Buttons Mobile Layout */
+  .nav-buttons {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .ai-call-btn {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    margin-right: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .hire-btn {
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -1609,87 +1646,24 @@ script.id="ENRyFIjJmWoHDOtLC-HzL";script.domain="www.chatbase.co";document.body.
 if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
 </script>
 
-<!-- Official Vapi Web SDK (Pure Integration) -->
 <script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"></script>
-
-<!-- Official Vapi Web SDK -->
-<script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"></script>
-
 <script>
-  let vapi = null;
-  let isCallActive = false;
-
-  // Initialize Vapi instance properly
-  function initVapi() {
-    if (window.vapiSDK && !vapi) {
-      vapi = window.vapiSDK.run({
+  window.addEventListener('load', function() {
+    if (window.vapiSDK) {
+      window.vapiSDK.run({
         apiKey: "248843f1-79b5-4d22-8f08-060bed4f567b",
         assistant: "3627175b-19bd-431c-b4ab-b6d2c718bc7e"
       });
-
-      // Call event listeners
-      vapi.on('call-start', () => {
-        isCallActive = true;
-        updateBtnState("End Call", true);
-      });
-
-      vapi.on('call-end', () => {
-        isCallActive = false;
-        updateBtnState("Call AI Agent", false);
-      });
-
-      vapi.on('error', (e) => {
-        console.error("Vapi Error:", e);
-        isCallActive = false;
-        updateBtnState("Call AI Agent", false);
-        alert("Microphone permission denied or connection error.");
-      });
     }
-  }
+  });
 
-  // Toggle Function called by button click
-  async function toggleVapiCall() {
-    const btnText = document.getElementById("vapi-btn-text");
-
-    // Fallback if Vapi is not initialized yet
-    if (!vapi) {
-      initVapi();
-    }
-
-    if (!vapi) {
-      alert("Vapi SDK loading... Please click again in 2 seconds.");
-      return;
-    }
-
-    if (!isCallActive) {
-      btnText.innerText = "Connecting...";
-      try {
-        await vapi.start();
-      } catch (err) {
-        console.error("Start Call Failed:", err);
-        btnText.innerText = "Call AI Agent";
-      }
+  function toggleVapiCall() {
+    if (window.vapiSDK && window.vapiSDK.instances && window.vapiSDK.instances[0]) {
+      window.vapiSDK.instances[0].toggle();
     } else {
-      vapi.stop();
+      alert("Please push code to Vercel/Netlify or open via Live Server for mic permissions.");
     }
   }
-
-  function updateBtnState(text, isActive) {
-    const btn = document.getElementById("vapi-call-btn");
-    const btnText = document.getElementById("vapi-btn-text");
-    if (btnText) btnText.innerText = text;
-    
-    if (btn) {
-      if (isActive) {
-        btn.classList.add("active-call");
-      } else {
-        btn.classList.remove("active-call");
-      }
-    }
-  }
-
-  // Auto initialize on window load
-  window.addEventListener('load', initVapi);
 </script>
 
 </body>
