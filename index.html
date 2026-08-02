@@ -865,6 +865,46 @@
   background-color: #128c7e;
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
 }
+
+/* AI Call Button Styling in Header */
+.ai-call-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-right: 8px; /* Spacing kam kar di taaki 'Hire Me' ke bilkul sath lage */
+  transition: all 0.3s ease;
+}
+.ai-call-btn:hover {
+  background: #5d3fd3;
+  border-color: #5d3fd3;
+  box-shadow: 0 0 12px rgba(93, 63, 211, 0.5);
+}
+
+.ai-call-btn.active-call {
+  background: #ff3b30 !important;
+  border-color: #ff3b30 !important;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+}
+
+/* Hide default Vapi floating elements */
+#vapi-sdk-container, .vapi-btn {
+  display: none !important;
+}
+
   </style>
 </head>
 <body>
@@ -888,13 +928,20 @@
 
   <!-- ── NAV ──────────────────────────────────────────────── -->
   <nav id="navbar">
-    <div class="nav-logo"> <a href="index.html">SAN</a> <span>.</span></div>
-    <ul class="nav-links">
+    <div class="nav-logo"> <a href="index.html">SAN studio</a> <span>.</span></div>
+    <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; margin: 0 auto;">
       <li><a href="#about">About</a></li>
       <li><a href="#projects">Work</a></li>
       <li><a href="#skills">Skills</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
+    <!-- Custom Vapi AI Call Button -->
+<button id="vapi-call-btn" onclick="toggleVapiCall()" class="ai-call-btn">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+  </svg>
+  <span id="vapi-btn-text">Call AI Agent</span>
+</button>
     <a href="#contact" class="nav-cta">Hire Me</a>
     <button class="hamburger" id="hamburger" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -1560,6 +1607,89 @@
 {const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";
 script.id="ENRyFIjJmWoHDOtLC-HzL";script.domain="www.chatbase.co";document.body.appendChild(script)};
 if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+
+<!-- Official Vapi Web SDK (Pure Integration) -->
+<script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"></script>
+
+<!-- Official Vapi Web SDK -->
+<script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"></script>
+
+<script>
+  let vapi = null;
+  let isCallActive = false;
+
+  // Initialize Vapi instance properly
+  function initVapi() {
+    if (window.vapiSDK && !vapi) {
+      vapi = window.vapiSDK.run({
+        apiKey: "248843f1-79b5-4d22-8f08-060bed4f567b",
+        assistant: "3627175b-19bd-431c-b4ab-b6d2c718bc7e"
+      });
+
+      // Call event listeners
+      vapi.on('call-start', () => {
+        isCallActive = true;
+        updateBtnState("End Call", true);
+      });
+
+      vapi.on('call-end', () => {
+        isCallActive = false;
+        updateBtnState("Call AI Agent", false);
+      });
+
+      vapi.on('error', (e) => {
+        console.error("Vapi Error:", e);
+        isCallActive = false;
+        updateBtnState("Call AI Agent", false);
+        alert("Microphone permission denied or connection error.");
+      });
+    }
+  }
+
+  // Toggle Function called by button click
+  async function toggleVapiCall() {
+    const btnText = document.getElementById("vapi-btn-text");
+
+    // Fallback if Vapi is not initialized yet
+    if (!vapi) {
+      initVapi();
+    }
+
+    if (!vapi) {
+      alert("Vapi SDK loading... Please click again in 2 seconds.");
+      return;
+    }
+
+    if (!isCallActive) {
+      btnText.innerText = "Connecting...";
+      try {
+        await vapi.start();
+      } catch (err) {
+        console.error("Start Call Failed:", err);
+        btnText.innerText = "Call AI Agent";
+      }
+    } else {
+      vapi.stop();
+    }
+  }
+
+  function updateBtnState(text, isActive) {
+    const btn = document.getElementById("vapi-call-btn");
+    const btnText = document.getElementById("vapi-btn-text");
+    if (btnText) btnText.innerText = text;
+    
+    if (btn) {
+      if (isActive) {
+        btn.classList.add("active-call");
+      } else {
+        btn.classList.remove("active-call");
+      }
+    }
+  }
+
+  // Auto initialize on window load
+  window.addEventListener('load', initVapi);
 </script>
 
 </body>
